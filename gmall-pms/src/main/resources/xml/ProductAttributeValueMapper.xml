@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.gmall.pms.mapper.ProductAttributeValueMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, product_id, product_attribute_id, value
+    </sql>
+
+    <!--List<EsProductAttributeValue> selectProductBaseAttrAndValue(Long id);-->
+    <select id="selectProductBaseAttrAndValue" resultType="com.atguigu.gmall.to.es.EsProductAttributeValue">
+        SELECT pav.*,pa.`name`,pa.`type` FROM `pms_product_attribute_value` pav
+            LEFT JOIN `pms_product_attribute` pa
+            ON pa.`id`=pav.`product_attribute_id`
+        WHERE pav.product_id=#{id} AND pa.`type`=1
+    </select>
+
+    <!--List<ProductAttribute> selectProductSaleAttrName(Long id);-->
+    <select id="selectProductSaleAttrName" resultType="com.atguigu.gmall.pms.entity.ProductAttribute">
+        SELECT pa.* FROM `pms_product_attribute` pa
+            WHERE pa.`product_attribute_category_id` =
+            (
+            SELECT pa.`product_attribute_category_id` FROM `pms_product_attribute_value` pav
+                LEFT JOIN `pms_product_attribute` pa
+                ON pa.`id`=pav.`product_attribute_id`
+            WHERE pav.product_id=#{id} AND pa.`type`=0 LIMIT 1
+            ) AND pa.`type`=0 ORDER BY pa.`sort` DESC
+    </select>
+
+</mapper>
